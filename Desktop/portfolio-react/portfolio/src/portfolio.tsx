@@ -2,6 +2,7 @@
 import './App.css'
 
 const cvUrl = new URL('./imgs/Cv-LimonesBernabe-Mario.pdf', import.meta.url).href
+const profilePhotoUrl = new URL('./imgs/profile-placeholder.svg', import.meta.url).href
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
@@ -183,8 +184,13 @@ const socials = [
   { label: 'Twitter', href: 'https://twitter.com/tuusuario' },
 ]
 
-export default function Portfolio() {
-  const [hideTopbar, setHideTopbar] = React.useState(false)
+type PortfolioProps = {
+  ready: boolean
+}
+
+function TopbarComponent() {
+  const [isHidden, setIsHidden] = React.useState(false)
+  const isHiddenRef = React.useRef(false)
 
   React.useEffect(() => {
     let lastY = window.scrollY
@@ -196,8 +202,13 @@ export default function Portfolio() {
 
       window.requestAnimationFrame(() => {
         const currentY = window.scrollY
-        const scrollingDown = currentY > lastY && currentY > 80
-        setHideTopbar(scrollingDown)
+        const shouldHide = currentY > lastY && currentY > 80
+
+        if (shouldHide !== isHiddenRef.current) {
+          isHiddenRef.current = shouldHide
+          setIsHidden(shouldHide)
+        }
+
         lastY = currentY
         ticking = false
       })
@@ -207,7 +218,36 @@ export default function Portfolio() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  return (
+    <header className={`topbar reveal ${isHidden ? 'topbar--hidden' : ''}`}>
+      <div className="brand">
+        <span className="brand-mark">ML</span>
+        <div>
+          <p className="brand-title">Nombre Apellido</p>
+          <p className="brand-subtitle">Backend Engineer + Product Builder</p>
+        </div>
+      </div>
+      <nav className="nav">
+        {navLinks.map((link) => (
+          <a key={link.href} href={link.href}>
+            {link.label}
+          </a>
+        ))}
+      </nav>
+      <a className="btn primary" href={cvUrl} target="_blank" rel="noreferrer">
+        Descargar CV
+      </a>
+    </header>
+  )
+}
+
+const Topbar = React.memo(TopbarComponent)
+
+function PortfolioComponent({ ready }: PortfolioProps) {
   React.useEffect(() => {
+    if (!ready) {
+      return
+    }
     const elements = Array.from(document.querySelectorAll('.reveal'))
 
     if (!('IntersectionObserver' in window)) {
@@ -229,29 +269,70 @@ export default function Portfolio() {
 
     elements.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [])
+  }, [ready])
 
   return (
     <div className="portfolio" id="inicio">
-      <header className={`topbar ${hideTopbar ? 'topbar--hidden' : ''}`}>
-        <div className="brand">
-          <span className="brand-mark">ML</span>
-          <div>
-            <p className="brand-title">Nombre Apellido</p>
-            <p className="brand-subtitle">Backend Engineer + Product Builder</p>
+      <section className={`intro-landing hero-landing reveal ${ready ? 'is-ready' : ''}`}>
+        <div className="hero-copy">
+          <p className="hero-greeting">Hello, I'm</p>
+          <h1 className="hero-name">
+            MANIKANTA <span>DARAPUREDDY</span>
+          </h1>
+          <div className="hero-role">
+            <span>Designer</span>
+            <span className="hero-caret" aria-hidden="true">
+              |
+            </span>
+          </div>
+          <p className="hero-summary">
+            I craft beautiful, responsive websites with modern technologies and a passion for
+            creating engaging user experiences.
+          </p>
+          <div className="hero-social">
+            <a className="social-btn" href="https://github.com/" aria-label="GitHub">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.48 0-.24-.01-.88-.01-1.72-2.78.62-3.37-1.38-3.37-1.38-.45-1.18-1.11-1.49-1.11-1.49-.9-.64.07-.63.07-.63 1 .07 1.52 1.05 1.52 1.05.9 1.56 2.36 1.11 2.94.85.09-.67.35-1.11.63-1.37-2.22-.26-4.56-1.15-4.56-5.12 0-1.13.39-2.06 1.03-2.78-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.05.8-.23 1.66-.35 2.51-.35.85 0 1.71.12 2.51.35 1.9-1.32 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.65 1.03 2.78 0 3.98-2.34 4.86-4.57 5.12.36.31.68.92.68 1.86 0 1.34-.01 2.42-.01 2.75 0 .27.18.59.69.48A10.04 10.04 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z" />
+              </svg>
+            </a>
+            <a className="social-btn" href="https://linkedin.com/" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6.94 8.5H3.28V21h3.66V8.5Zm.32-3.73c0 1.07-.86 1.94-2.12 1.94-1.24 0-2.12-.87-2.12-1.94 0-1.08.88-1.95 2.12-1.95 1.26 0 2.12.87 2.12 1.95ZM20.9 14.63V21h-3.64v-5.95c0-1.5-.54-2.52-1.88-2.52-1.03 0-1.64.7-1.91 1.37-.1.25-.12.6-.12.95V21H9.7s.05-10.44 0-11.5h3.65v1.63c.48-.75 1.34-1.82 3.25-1.82 2.38 0 4.16 1.57 4.16 4.92Z" />
+              </svg>
+            </a>
+            <a className="social-btn" href="mailto:hello@example.com" aria-label="Email">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm0 2v.2l8 4.8 8-4.8V8H4Zm16 8V9.3l-7.5 4.5a1 1 0 0 1-1 0L4 9.3V16h16Z" />
+              </svg>
+            </a>
+            <a className="social-btn" href={cvUrl} aria-label="Download CV">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.29a1 1 0 1 1 1.4 1.42l-4.01 4a1 1 0 0 1-1.4 0l-4.01-4a1 1 0 1 1 1.41-1.42L11 12.59V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Z" />
+              </svg>
+            </a>
+          </div>
+          <button className="hero-cta" type="button">
+            <span className="cta-icon" aria-hidden="true">
+              ✦
+            </span>
+            My Services
+          </button>
+        </div>
+
+        <div className="hero-visual">
+          <div className="portrait-shell">
+            <div className="portrait-ring">
+              <div className="portrait-photo">
+                <img src={profilePhotoUrl} alt="Foto de perfil" loading="lazy" />
+                <span>Tu foto aqui</span>
+              </div>
+            </div>
+            <div className="portrait-lines" aria-hidden="true" />
           </div>
         </div>
-        <nav className="nav">
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
-        <a className="btn primary" href={cvUrl} target="_blank" rel="noreferrer">
-          Descargar CV
-        </a>
-      </header>
+      </section>
+
+      <Topbar />
 
       <section className="hero reveal">
         <div className="hero-copy">
@@ -511,3 +592,7 @@ export default function Portfolio() {
     </div>
   )
 }
+
+const Portfolio = React.memo(PortfolioComponent)
+
+export default Portfolio

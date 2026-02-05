@@ -1,0 +1,50 @@
+/* Scroll + navbar stabilization overrides */
+:root {
+  --nav-offset: 96px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#root,
+.app-shell {
+  overflow: visible;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backface-visibility: hidden;
+}
+
+body.nav-stable .topbar--hidden {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body.content-ready .app-content {
+  transform: none !important;
+  filter: none !important;
+  will-change: auto;
+}
+
+section[id],
+.portfolio[id] {
+  scroll-margin-top: var(--nav-offset);
+}
+
