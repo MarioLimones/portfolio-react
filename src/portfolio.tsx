@@ -1,6 +1,7 @@
 ﻿import React from 'react'
-import './App.css'
 
+const portada_gestortareas = new URL('./imgs/portada_gestortareas.png', import.meta.url).href
+const port_antiguo = new URL('./imgs/port_antiguo.png', import.meta.url).href
 const cvUrl = new URL('./imgs/Cv-LimonesBernabe-Mario.pdf', import.meta.url).href
 const profilePhotoUrl = new URL('./imgs/mariofoto.png', import.meta.url).href
 
@@ -15,59 +16,51 @@ const navLinks = [
 ]
 
 const stats = [
-  { value: '10+', label: 'Anios construyendo producto', hint: 'Desde fintech hasta SaaS' },
-  { value: '40+', label: 'Lanzamientos en produccion', hint: 'Equipos remotos y locales' },
-  { value: '99.98%', label: 'Uptime en sistemas criticos', hint: 'Alta disponibilidad' },
+  { value: '3+', label: 'Proyectos', hint: 'Aplicaciones backend y full-stack' },
+  { value: 'DAM', label: 'Desarrollo de Aplicaciones Multiplataforma', hint: 'Formación técnica en curso' },
+  { value: '0', label: 'Código claro y directo al problema' },
 ]
 
 const heroHighlights = [
   {
     title: 'Arquitectura escalable',
-    text: 'Diseno sistemas resilientes con observabilidad, trazas y automatizacion completa.',
+    text: 'Diseño aplicaciones backend con Spring Boot y APIs REST bien estructuradas, separando capas y preparando el código para crecer sin rehacerlo todo.',
   },
   {
     title: 'Velocidad sin deuda',
-    text: 'Roadmaps claros, entregas incrementales y calidad desde el primer commit.',
+    text: 'Desarrollo funcionalidades de forma incremental, priorizando código claro, mantenible y funcional desde el primer commit.',
   },
   {
     title: 'Impacto medible',
-    text: 'Optimizaciones que reducen costos y aceleran la entrega de valor.',
+    text: 'He construido proyectos completos que automatizan procesos, validan datos y reducen errores, mejorando la usabilidad y la fiabilidad de las aplicaciones.',
   },
 ]
 
 const projects = [
   {
-    title: 'Plataforma de pagos instantaneos',
+    img: portada_gestortareas,
+    title: 'Gestor de tareas',
     description:
-      'Reinventamos el core con microservicios, colas y cache distribuido. Menos latencia, mas conversion.',
-    tags: ['Microservicios', 'Event-driven', 'AWS', 'Go'],
-    metric: '-35% latencia p95',
+      'Aplicación android básica que permite crear, asignar y completar tareas.',
+    tags: ['Android', 'Kotlin', 'Android Studio'],
+    year: '2026',
+  },
+  {
+    title: 'App de Preguntas y Respuestas',
+    description:
+      'Aplicación realizada en Spring Boot con Java implementando una API REST con JPA y MySQL.',
+    tags: ['Spring Boot', 'Java', 'JPA', 'MySQL'],
+    year: '2026',
+  },
+  {
+    title: 'Portfolio antiguo',
+    img: port_antiguo,
+    mediaClass: 'project-media--zoom',
+    description:
+      'Pagina web personal que realizé en mi primer año como desarrollador con conocimientos básicos.',
+    tags: ['HTML', 'CSS', 'JavaScript'],
     year: '2025',
-  },
-  {
-    title: 'Motor de recomendacion en tiempo real',
-    description:
-      'Pipeline de datos en streaming con features dinamicas y modelos online. Resultados visibles en horas.',
-    tags: ['Streaming', 'Feature Store', 'Kubernetes', 'Python'],
-    metric: '+22% CTR',
-    year: '2024',
-  },
-  {
-    title: 'Suite de observabilidad 360',
-    description:
-      'Unificamos logs, metricas y alertas con paneles ejecutivos y runbooks inteligentes.',
-    tags: ['Observability', 'SRE', 'Grafana', 'Tempo'],
-    metric: '-48% MTTR',
-    year: '2024',
-  },
-  {
-    title: 'Marketplace B2B global',
-    description:
-      'Arquitectura multi-tenant con permisos finos, facturacion y cumplimiento en varios paises.',
-    tags: ['Multi-tenant', 'Billing', 'PostgreSQL', 'Node'],
-    metric: 'x3 revenue',
-    year: '2023',
-  },
+  }
 ]
 
 const services = [
@@ -232,8 +225,8 @@ function TopbarComponent({ theme, onToggleTheme }: TopbarProps) {
       <div className="brand">
         <span className="brand-mark">ML</span>
         <div>
-          <p className="brand-title">Nombre Apellido</p>
-          <p className="brand-subtitle">Backend Engineer + Product Builder</p>
+          <p className="brand-title">Mario Limones</p>
+          <p className="brand-subtitle">Desarrollador de Software</p>
         </div>
       </div>
       <nav className="nav">
@@ -396,7 +389,7 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         className={`intro-landing hero-landing reveal is-interactive ${ready ? 'is-ready' : ''}`}
       >
         <div className="hero-copy">
-          <p className="hero-greeting">Hello, I'm</p>
+          <p className="hero-greeting">Hola, Soy</p>
           <h1 className="hero-name">
             Mario <span>Limones</span>
           </h1>
@@ -407,7 +400,6 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
             <div className="portrait-shell">
               <div className="portrait-photo">
                 <img src={profilePhotoUrl} alt="Foto de perfil" loading="lazy" />
-                <span>Tu foto aqui</span>
               </div>
             </div>
           </div>
@@ -416,21 +408,25 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
           </p>
           <div className="hero-social">
             <a className="social-btn" href="https://github.com/" aria-label="GitHub">
+              <span className="social-tooltip" role="tooltip">GitHub</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.48 0-.24-.01-.88-.01-1.72-2.78.62-3.37-1.38-3.37-1.38-.45-1.18-1.11-1.49-1.11-1.49-.9-.64.07-.63.07-.63 1 .07 1.52 1.05 1.52 1.05.9 1.56 2.36 1.11 2.94.85.09-.67.35-1.11.63-1.37-2.22-.26-4.56-1.15-4.56-5.12 0-1.13.39-2.06 1.03-2.78-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.05.8-.23 1.66-.35 2.51-.35.85 0 1.71.12 2.51.35 1.9-1.32 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.65 1.03 2.78 0 3.98-2.34 4.86-4.57 5.12.36.31.68.92.68 1.86 0 1.34-.01 2.42-.01 2.75 0 .27.18.59.69.48A10.04 10.04 0 0 0 22 12.26C22 6.58 17.52 2 12 2Z" />
               </svg>
             </a>
             <a className="social-btn" href="https://linkedin.com/" aria-label="LinkedIn">
+              <span className="social-tooltip" role="tooltip">LinkedIn</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M6.94 8.5H3.28V21h3.66V8.5Zm.32-3.73c0 1.07-.86 1.94-2.12 1.94-1.24 0-2.12-.87-2.12-1.94 0-1.08.88-1.95 2.12-1.95 1.26 0 2.12.87 2.12 1.95ZM20.9 14.63V21h-3.64v-5.95c0-1.5-.54-2.52-1.88-2.52-1.03 0-1.64.7-1.91 1.37-.1.25-.12.6-.12.95V21H9.7s.05-10.44 0-11.5h3.65v1.63c.48-.75 1.34-1.82 3.25-1.82 2.38 0 4.16 1.57 4.16 4.92Z" />
               </svg>
             </a>
-            <a className="social-btn" href="mailto:mario.limobe@gmail.com" aria-label="Email">
+            <a className="social-btn" href="mailto:mario.limobe@gmail.com" aria-label="Correo">
+              <span className="social-tooltip" role="tooltip">Correo</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm0 2v.2l8 4.8 8-4.8V8H4Zm16 8V9.3l-7.5 4.5a1 1 0 0 1-1 0L4 9.3V16h16Z" />
               </svg>
             </a>
-            <a className="social-btn" href={cvUrl} aria-label="Download CV">
+            <a className="social-btn" href={cvUrl} aria-label="Descargar CV">
+              <span className="social-tooltip" role="tooltip">Descargar CV</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.29a1 1 0 1 1 1.4 1.42l-4.01 4a1 1 0 0 1-1.4 0l-4.01-4a1 1 0 1 1 1.41-1.42L11 12.59V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Z" />
               </svg>
@@ -438,7 +434,7 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
           </div>
           <button className="hero-cta" type="button">
             <span className="cta-icon" aria-hidden="true">
-              ✦
+              ?
             </span>
             My Services
           </button>
@@ -451,14 +447,13 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         <div className="hero-copy">
           <div className="eyebrow">Disponible para proyectos 2026</div>
           <h1 className="hero-title">
-            Construyo plataformas que escalan y productos que la gente ama.
+            Desarrollador de software en formación.
           </h1>
           <p className="hero-tagline">
-            Backend Engineering, arquitectura cloud y estrategia tecnica para equipos ambiciosos.
+            Trabajo para proyectos académicos y personales orientados a resolver problemas reales con tecnología. Mi enfoque es aprender y crecer como desarrollador, aportando valor a través de soluciones simples y efectivas.
           </p>
           <p className="hero-lead">
-            Aqui va tu descripcion breve: que haces, para quien y el impacto que has generado. Usa 2-3
-            frases directas con resultados concretos.
+            Diseño y desarrollo aplicaciones web completas, desde el backend con Java y Spring Boot hasta el frontend con JavaScript y React, creando APIs REST y interfaces claras y funcionales
           </p>
           <div className="hero-actions">
             <a className="btn primary" href="mailto:mario.limobe@gmail.com">
@@ -481,13 +476,13 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
 
         <div className="hero-visual">
           <div className="profile-card">
-            <div className="avatar">NA</div>
+            <div className="avatar">ML</div>
             <div>
-              <p className="profile-name">Nombre Apellido</p>
-              <p className="profile-role">Backend Engineer | Remote Friendly</p>
+              <p className="profile-name">Mario Limones</p>
+              <p className="profile-role">Desarrollador de Software</p>
               <div className="profile-meta">
-                <span>Madrid, ES</span>
-                <span>+34 600 000 000</span>
+                <span>Sevilla, ES</span>
+                <span>+34 644 48 44 82</span>
               </div>
             </div>
           </div>
@@ -530,7 +525,10 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         <div className="project-grid">
           {projects.map((project) => (
             <article key={project.title} className="project-card">
-              <div className="project-media">
+              <div className={`project-media ${project.mediaClass ?? ''}`.trim()}>
+                {project.img ? (
+                  <img src={project.img} alt={`Portada ${project.title}`} loading="lazy" />
+                ) : null}
                 <span>{project.year}</span>
               </div>
               <div className="project-body">
