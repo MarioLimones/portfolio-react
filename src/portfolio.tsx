@@ -1,4 +1,5 @@
 ﻿import React from 'react'
+import TechMarquee from './TechMarquee'
 
 const portada_gestortareas = new URL('./imgs/portada_gestortareas.png', import.meta.url).href
 const port_antiguo = new URL('./imgs/port_antiguo.png', import.meta.url).href
@@ -36,7 +37,17 @@ const heroHighlights = [
   },
 ]
 
-const projects = [
+type Project = {
+  title: string
+  description: string
+  tags: string[]
+  year: string
+  img?: string
+  mediaClass?: string
+  metric?: string
+}
+
+const projects: Project[] = [
   {
     img: portada_gestortareas,
     title: 'Gestor de tareas',
@@ -497,19 +508,7 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         </div>
       </section>
 
-      <section className="marquee reveal" aria-hidden="true">
-        <div className="marquee-track">
-          <span>Infra resiliente</span>
-          <span>Observabilidad total</span>
-          <span>Automatizacion inteligente</span>
-          <span>Data en tiempo real</span>
-          <span>Experiencia de usuario</span>
-          <span>Performance extremo</span>
-          <span>Infra resiliente</span>
-          <span>Observabilidad total</span>
-          <span>Automatizacion inteligente</span>
-        </div>
-      </section>
+      <TechMarquee />
 
       <section className="section reveal" id="proyectos">
         <div className="section-head">
@@ -707,3 +706,4 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
 const Portfolio = React.memo(PortfolioComponent)
 
 export default Portfolio
+
