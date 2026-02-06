@@ -2,7 +2,7 @@
 import './App.css'
 
 const cvUrl = new URL('./imgs/Cv-LimonesBernabe-Mario.pdf', import.meta.url).href
-const profilePhotoUrl = new URL('./imgs/profile-placeholder.svg', import.meta.url).href
+const profilePhotoUrl = new URL('./imgs/mariofoto.png', import.meta.url).href
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
@@ -184,11 +184,20 @@ const socials = [
   { label: 'Twitter', href: 'https://twitter.com/tuusuario' },
 ]
 
+type Theme = 'dark' | 'light'
+
 type PortfolioProps = {
   ready: boolean
+  theme: Theme
+  onToggleTheme: () => void
 }
 
-function TopbarComponent() {
+type TopbarProps = {
+  theme: Theme
+  onToggleTheme: () => void
+}
+
+function TopbarComponent({ theme, onToggleTheme }: TopbarProps) {
   const [isHidden, setIsHidden] = React.useState(false)
   const isHiddenRef = React.useRef(false)
 
@@ -234,6 +243,24 @@ function TopbarComponent() {
           </a>
         ))}
       </nav>
+      <button
+        className="theme-toggle"
+        type="button"
+        onClick={onToggleTheme}
+        aria-pressed={theme === 'light'}
+        aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+        title={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+      >
+        {theme === 'dark' ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 4.75a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5A.75.75 0 0 1 12 4.75Zm5.657 2.343a.75.75 0 0 1 1.06 0l.354.353a.75.75 0 1 1-1.06 1.06l-.354-.353a.75.75 0 0 1 0-1.06ZM19.25 12a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Zm-1.533 5.407a.75.75 0 0 1 1.06 1.06l-.353.354a.75.75 0 1 1-1.06-1.06l.353-.354ZM12 19.25a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75ZM5.923 17.77a.75.75 0 0 1 0-1.06l.353-.354a.75.75 0 1 1 1.06 1.06l-.353.354a.75.75 0 0 1-1.06 0ZM4.75 12a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5a.75.75 0 0 1-.75-.75Zm1.173-6.154a.75.75 0 0 1 1.06-1.06l.353.354a.75.75 0 1 1-1.06 1.06l-.353-.354ZM12 7.25A4.75 4.75 0 1 0 12 16.75 4.75 4.75 0 0 0 12 7.25Z" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a6.5 6.5 0 0 0 11.5 11.5Z" />
+          </svg>
+        )}
+      </button>
       <a className="btn primary" href={cvUrl} target="_blank" rel="noreferrer">
         Descargar CV
       </a>
@@ -243,7 +270,9 @@ function TopbarComponent() {
 
 const Topbar = React.memo(TopbarComponent)
 
-function PortfolioComponent({ ready }: PortfolioProps) {
+function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
+  const heroRef = React.useRef<HTMLElement | null>(null)
+
   React.useEffect(() => {
     if (!ready) {
       return
@@ -271,23 +300,119 @@ function PortfolioComponent({ ready }: PortfolioProps) {
     return () => observer.disconnect()
   }, [ready])
 
+  React.useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) {
+      return
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
+    let rafId = 0
+    let isAnimating = false
+    let targetX = 0
+    let targetY = 0
+    let targetPX = 0
+    let targetPY = 0
+    let currentX = 0
+    let currentY = 0
+    let currentPX = 0
+    let currentPY = 0
+
+    const animate = () => {
+      const ease = 0.12
+      currentX += (targetX - currentX) * ease
+      currentY += (targetY - currentY) * ease
+      currentPX += (targetPX - currentPX) * ease
+      currentPY += (targetPY - currentPY) * ease
+
+      hero.style.setProperty('--hero-mx', currentX.toFixed(3))
+      hero.style.setProperty('--hero-my', currentY.toFixed(3))
+      hero.style.setProperty('--hero-px', `${currentPX.toFixed(1)}px`)
+      hero.style.setProperty('--hero-py', `${currentPY.toFixed(1)}px`)
+
+      const stillMoving =
+        Math.abs(targetX - currentX) > 0.001 ||
+        Math.abs(targetY - currentY) > 0.001 ||
+        Math.abs(targetPX - currentPX) > 0.08 ||
+        Math.abs(targetPY - currentPY) > 0.08
+
+      if (stillMoving) {
+        rafId = window.requestAnimationFrame(animate)
+      } else {
+        isAnimating = false
+        rafId = 0
+      }
+    }
+
+    const updateTarget = (event: PointerEvent) => {
+      const rect = hero.getBoundingClientRect()
+      if (!rect.width || !rect.height) {
+        return
+      }
+      const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+      const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height))
+      targetX = (x - 0.5) * 2
+      targetY = (y - 0.5) * 2
+      const lightRange = 48
+      targetPX = (x - 0.5) * lightRange
+      targetPY = (y - 0.5) * lightRange
+
+      if (!isAnimating) {
+        isAnimating = true
+        rafId = window.requestAnimationFrame(animate)
+      }
+    }
+
+    const resetTarget = () => {
+      targetX = 0
+      targetY = 0
+      targetPX = 0
+      targetPY = 0
+      if (!isAnimating) {
+        isAnimating = true
+        rafId = window.requestAnimationFrame(animate)
+      }
+    }
+
+    hero.addEventListener('pointermove', updateTarget, { passive: true })
+    hero.addEventListener('pointerenter', updateTarget, { passive: true })
+    hero.addEventListener('pointerleave', resetTarget, { passive: true })
+
+    return () => {
+      hero.removeEventListener('pointermove', updateTarget)
+      hero.removeEventListener('pointerenter', updateTarget)
+      hero.removeEventListener('pointerleave', resetTarget)
+      window.cancelAnimationFrame(rafId)
+    }
+  }, [])
+
   return (
     <div className="portfolio" id="inicio">
-      <section className={`intro-landing hero-landing reveal ${ready ? 'is-ready' : ''}`}>
+      <section
+        ref={heroRef}
+        className={`intro-landing hero-landing reveal is-interactive ${ready ? 'is-ready' : ''}`}
+      >
         <div className="hero-copy">
           <p className="hero-greeting">Hello, I'm</p>
           <h1 className="hero-name">
-            MANIKANTA <span>DARAPUREDDY</span>
+            Mario <span>Limones</span>
           </h1>
           <div className="hero-role">
-            <span>Designer</span>
-            <span className="hero-caret" aria-hidden="true">
-              |
-            </span>
+            <span>Desarrollador de software</span>
+          </div>
+          <div className="hero-inline-portrait">
+            <div className="portrait-shell">
+              <div className="portrait-photo">
+                <img src={profilePhotoUrl} alt="Foto de perfil" loading="lazy" />
+                <span>Tu foto aqui</span>
+              </div>
+            </div>
           </div>
           <p className="hero-summary">
-            I craft beautiful, responsive websites with modern technologies and a passion for
-            creating engaging user experiences.
+            Desarrollador Full Stack en formación, especializado en backend con Spring Boot y frontend con React Native.
           </p>
           <div className="hero-social">
             <a className="social-btn" href="https://github.com/" aria-label="GitHub">
@@ -300,7 +425,7 @@ function PortfolioComponent({ ready }: PortfolioProps) {
                 <path d="M6.94 8.5H3.28V21h3.66V8.5Zm.32-3.73c0 1.07-.86 1.94-2.12 1.94-1.24 0-2.12-.87-2.12-1.94 0-1.08.88-1.95 2.12-1.95 1.26 0 2.12.87 2.12 1.95ZM20.9 14.63V21h-3.64v-5.95c0-1.5-.54-2.52-1.88-2.52-1.03 0-1.64.7-1.91 1.37-.1.25-.12.6-.12.95V21H9.7s.05-10.44 0-11.5h3.65v1.63c.48-.75 1.34-1.82 3.25-1.82 2.38 0 4.16 1.57 4.16 4.92Z" />
               </svg>
             </a>
-            <a className="social-btn" href="mailto:hello@example.com" aria-label="Email">
+            <a className="social-btn" href="mailto:mario.limobe@gmail.com" aria-label="Email">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm0 2v.2l8 4.8 8-4.8V8H4Zm16 8V9.3l-7.5 4.5a1 1 0 0 1-1 0L4 9.3V16h16Z" />
               </svg>
@@ -318,21 +443,9 @@ function PortfolioComponent({ ready }: PortfolioProps) {
             My Services
           </button>
         </div>
-
-        <div className="hero-visual">
-          <div className="portrait-shell">
-            <div className="portrait-ring">
-              <div className="portrait-photo">
-                <img src={profilePhotoUrl} alt="Foto de perfil" loading="lazy" />
-                <span>Tu foto aqui</span>
-              </div>
-            </div>
-            <div className="portrait-lines" aria-hidden="true" />
-          </div>
-        </div>
       </section>
 
-      <Topbar />
+      <Topbar theme={theme} onToggleTheme={onToggleTheme} />
 
       <section className="hero reveal">
         <div className="hero-copy">
@@ -348,7 +461,7 @@ function PortfolioComponent({ ready }: PortfolioProps) {
             frases directas con resultados concretos.
           </p>
           <div className="hero-actions">
-            <a className="btn primary" href="mailto:hola@tudominio.com">
+            <a className="btn primary" href="mailto:mario.limobe@gmail.com">
               Hablemos
             </a>
             <a className="btn ghost" href="#proyectos">

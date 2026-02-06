@@ -6,11 +6,23 @@ import './App.css'
 const LOADER_DURATION = 2200
 const LOADER_EXIT_DURATION = 900
 const loaderName = 'Mario Limones'
+const THEME_STORAGE_KEY = 'portfolio-theme'
+
+type Theme = 'dark' | 'light'
+
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'dark'
+  }
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
+  return stored === 'light' ? 'light' : 'dark'
+}
 
 export default function App() {
   const [introStage, setIntroStage] = React.useState<'loading' | 'exiting' | 'done'>('loading')
   const [progress, setProgress] = React.useState(0)
   const [shouldRenderPortfolio, setShouldRenderPortfolio] = React.useState(false)
+  const [theme, setTheme] = React.useState<Theme>(getInitialTheme)
   const progressRef = React.useRef(0)
 
   React.useEffect(() => {
@@ -75,6 +87,23 @@ export default function App() {
     }
   }, [introStage])
 
+  React.useLayoutEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = theme
+    root.style.colorScheme = theme
+  }, [theme])
+
+  React.useEffect(() => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+  }, [theme])
+
+  const handleToggleTheme = React.useCallback(() => {
+    const root = document.documentElement
+    root.classList.add('theme-transition')
+    window.setTimeout(() => root.classList.remove('theme-transition'), 420)
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  }, [])
+
   React.useEffect(() => {
     const isBlocking = introStage !== 'done'
     const isLoading = introStage === 'loading'
@@ -92,7 +121,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <AmbientBackground />
+      <AmbientBackground theme={theme} />
       <div
         className={`intro-loader ${isExiting ? 'is-exiting' : ''} ${isDone ? 'is-gone' : ''}`}
         aria-hidden={isExiting}
@@ -106,7 +135,9 @@ export default function App() {
         </div>
       </div>
       <div className={`app-content ${isDone ? 'is-revealing' : ''}`}>
-        {shouldRenderPortfolio ? <Portfolio ready={isDone} /> : null}
+        {shouldRenderPortfolio ? (
+          <Portfolio ready={isDone} theme={theme} onToggleTheme={handleToggleTheme} />
+        ) : null}
       </div>
     </div>
   )

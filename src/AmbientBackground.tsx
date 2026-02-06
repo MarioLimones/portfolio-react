@@ -31,6 +31,12 @@ type ColorDrifter = {
   pulseSpeed: number
 }
 
+type Theme = 'dark' | 'light'
+
+type AmbientBackgroundProps = {
+  theme: Theme
+}
+
 const MIN_STARS = 22
 const MAX_STARS = 68
 const MAX_DPR = 1.75
@@ -70,8 +76,12 @@ const createStars = (width: number, height: number): Star[] => {
 const getRandomAngle = () => Math.random() * Math.PI * 2
 const getRandomSpeed = () => MIN_DRIFTER_SPEED + Math.random() * (MAX_DRIFTER_SPEED - MIN_DRIFTER_SPEED)
 
-const createColorDrifters = (width: number, height: number): ColorDrifter[] => {
-  const drifterColors = ['#4f8cff', '#59f0c9', '#ff6f6f']
+const createColorDrifters = (
+  width: number,
+  height: number,
+  colors: string[]
+): ColorDrifter[] => {
+  const drifterColors = colors
   const centerY = height * 0.5
   const horizontalStep = width / (drifterColors.length + 1)
 
@@ -105,7 +115,7 @@ const createColorDrifters = (width: number, height: number): ColorDrifter[] => {
   })
 }
 
-function AmbientBackgroundComponent() {
+function AmbientBackgroundComponent({ theme }: AmbientBackgroundProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
 
   React.useEffect(() => {
@@ -125,6 +135,9 @@ function AmbientBackgroundComponent() {
     let height = 0
     let stars: Star[] = []
     let drifters: ColorDrifter[] = []
+    const drifterPalette =
+      theme === 'light' ? ['#4f74ff', '#2cc9a2', '#ff8a6b'] : ['#4f8cff', '#59f0c9', '#ff6f6f']
+    const starColor = theme === 'light' ? '#4a5770' : '#dbe7ff'
     let rafId = 0
     let resizeRaf = 0
     let lastFrameTime = performance.now()
@@ -147,7 +160,7 @@ function AmbientBackgroundComponent() {
       context.setTransform(dpr, 0, 0, dpr, 0, 0)
 
       stars = createStars(width, height)
-      drifters = createColorDrifters(width, height)
+      drifters = createColorDrifters(width, height, drifterPalette)
     }
 
     const drawFrame = (time: number, deltaSeconds: number) => {
@@ -197,7 +210,7 @@ function AmbientBackgroundComponent() {
         context.fill()
       }
 
-      context.fillStyle = '#dbe7ff'
+      context.fillStyle = starColor
       for (let index = 0; index < stars.length; index += 1) {
         const star = stars[index]
 
@@ -287,7 +300,7 @@ function AmbientBackgroundComponent() {
         mediaQuery.removeListener(handleMotionChange)
       }
     }
-  }, [])
+  }, [theme])
 
   return (
     <div className="global-ambient-bg" aria-hidden="true">
