@@ -71,15 +71,22 @@ const techRows: TechRow[] = [
   },
   {
     id: 'frontend',
-    items: toItems(['HTML', 'CSS', 'JavaScript', 'React', 'Vue', 'Figma', 'TypeScript']),
+    items: toItems([
+      'HTML',
+      'CSS',
+      'JavaScript',
+      'React',
+      'Vue',
+      'Figma',
+      'TypeScript',
+      'Docker',
+      'Swagger',
+      'Git',
+      'Postman',
+      'MySQL',
+    ]),
     direction: 'left',
     speed: 34,
-  },
-  {
-    id: 'tools',
-    items: toItems(['Docker', 'Swagger', 'Git', 'Postman', 'MySQL']),
-    direction: 'right',
-    speed: 32,
   },
 ]
 
@@ -117,22 +124,21 @@ function TechMarqueeComponent() {
 
         const computed = window.getComputedStyle(track)
         const gapValue = parseFloat(computed.columnGap || computed.gap || '0')
-        const gap = Number.isNaN(gapValue) ? 0 : gapValue
+        const minGap = Number.isNaN(gapValue) ? 0 : gapValue
+        const gapCount = Math.max(0, baseItems.length - 1)
+        const itemsWidth = baseItems.reduce((total, item) => total + item.offsetWidth, 0)
+        const gap = minGap
 
-        let baseWidth = 0
-        baseItems.forEach((item, index) => {
-          baseWidth += item.offsetWidth
-          if (index < baseItems.length - 1) {
-            baseWidth += gap
-          }
-        })
+        row.style.setProperty('--tech-gap', `${gap}px`)
+
+        const baseWidth = itemsWidth + gap * gapCount
 
         if (baseWidth === 0) {
           return
         }
 
         const containerWidth = row.offsetWidth
-        const minTrackWidth = Math.max(containerWidth * 2, baseWidth * 2)
+        const minTrackWidth = Math.max(baseWidth * 2, containerWidth * 2)
         let currentWidth = baseWidth
 
         while (currentWidth < minTrackWidth) {

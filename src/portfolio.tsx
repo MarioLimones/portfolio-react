@@ -5,13 +5,15 @@ const portada_gestortareas = new URL('./imgs/portada_gestortareas.png', import.m
 const port_antiguo = new URL('./imgs/port_antiguo.png', import.meta.url).href
 const cvUrl = new URL('./imgs/Cv-LimonesBernabe-Mario.pdf', import.meta.url).href
 const profilePhotoUrl = new URL('./imgs/mariofoto.png', import.meta.url).href
+const expAlphaImg = new URL('./imgs/exp_alpha.svg', import.meta.url).href
+const expBetaImg = new URL('./imgs/exp_beta.svg', import.meta.url).href
+const expGammaImg = new URL('./imgs/exp_gamma.svg', import.meta.url).href
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
   { label: 'Proyectos', href: '#proyectos' },
   { label: 'Servicios', href: '#servicios' },
   { label: 'Proceso', href: '#proceso' },
-  { label: 'Stack', href: '#stack' },
   { label: 'Experiencia', href: '#experiencia' },
   { label: 'Contacto', href: '#contacto' },
 ]
@@ -112,25 +114,6 @@ const processSteps = [
   },
 ]
 
-const stack = [
-  {
-    group: 'Backend',
-    items: ['Go', 'Node.js', 'Python', 'TypeScript', 'GraphQL', 'gRPC'],
-  },
-  {
-    group: 'Infra & DevOps',
-    items: ['AWS', 'Docker', 'Kubernetes', 'Terraform', 'CI/CD', 'SRE'],
-  },
-  {
-    group: 'Data',
-    items: ['PostgreSQL', 'Redis', 'Kafka', 'ClickHouse', 'Airflow', 'dbt'],
-  },
-  {
-    group: 'Product',
-    items: ['Figma', 'Notion', 'Miro', 'Jira', 'Roadmapping'],
-  },
-]
-
 const testimonials = [
   {
     quote:
@@ -159,6 +142,8 @@ const experience = [
     time: '2023 - Actual',
     summary:
       'Rediseno del core y migracion a arquitectura orientada a eventos con foco en resiliencia.',
+    image: expAlphaImg,
+    imageAlt: 'Dashboard de arquitectura y rendimiento para Empresa Alpha',
   },
   {
     role: 'Senior Software Engineer',
@@ -166,6 +151,8 @@ const experience = [
     time: '2020 - 2023',
     summary:
       'Escalado de plataforma global, automatizacion de despliegues y mejora de observabilidad.',
+    image: expBetaImg,
+    imageAlt: 'Panel de despliegues y observabilidad para Empresa Beta',
   },
   {
     role: 'Backend Developer',
@@ -173,6 +160,8 @@ const experience = [
     time: '2018 - 2020',
     summary:
       'Diseno de APIs, integraciones con proveedores y optimizacion de consultas criticas.',
+    image: expGammaImg,
+    imageAlt: 'Vista de API y rendimiento para Empresa Gamma',
   },
 ]
 
@@ -204,6 +193,24 @@ type TopbarProps = {
 function TopbarComponent({ theme, onToggleTheme }: TopbarProps) {
   const [isHidden, setIsHidden] = React.useState(false)
   const isHiddenRef = React.useRef(false)
+  const handleNavClick = React.useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
+    const anchor = event.currentTarget
+    const href = anchor.getAttribute('href')
+    if (!href || !href.startsWith('#')) {
+      return
+    }
+
+    const target = document.querySelector<HTMLElement>(href)
+    if (!target) {
+      return
+    }
+
+    event.preventDefault()
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' })
+    window.history.pushState(null, '', href)
+  }, [])
 
   React.useEffect(() => {
     let lastY = window.scrollY
@@ -242,7 +249,7 @@ function TopbarComponent({ theme, onToggleTheme }: TopbarProps) {
       </div>
       <nav className="nav">
         {navLinks.map((link) => (
-          <a key={link.href} href={link.href}>
+          <a key={link.href} href={link.href} onClick={handleNavClick}>
             {link.label}
           </a>
         ))}
@@ -516,10 +523,6 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
             <p className="section-kicker">Proyectos destacados</p>
             <h2>Casos reales, impacto medible.</h2>
           </div>
-          <p className="section-note">
-            Aqui puedes reemplazar con tus proyectos reales. Cada tarjeta incluye el problema, la
-            solucion y el resultado.
-          </p>
         </div>
         <div className="project-grid">
           {projects.map((project) => (
@@ -582,28 +585,6 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         </div>
       </section>
 
-      <section className="section reveal" id="stack">
-        <div className="section-head">
-          <div>
-            <p className="section-kicker">Stack</p>
-            <h2>Tecnologia elegida por resultados.</h2>
-          </div>
-          <p className="section-note">Personaliza las herramientas y actualiza con tu stack real.</p>
-        </div>
-        <div className="stack-grid">
-          {stack.map((group) => (
-            <article key={group.group} className="stack-card">
-              <h3>{group.group}</h3>
-              <div className="stack-tags">
-                {group.items.map((item) => (
-                  <span key={item}>{item}</span>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="section reveal" id="experiencia">
         <div className="section-head">
           <div>
@@ -617,12 +598,26 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
             <div key={item.role} className="timeline-item">
               <div className="timeline-dot" />
               <div className="timeline-content">
-                <div className="timeline-header">
-                  <h3>{item.role}</h3>
-                  <span>{item.time}</span>
+                <div className="experience-header">
+                  <div>
+                    <h3>{item.role}</h3>
+                    <p className="timeline-company">{item.company}</p>
+                  </div>
+                  <span className="experience-time">{item.time}</span>
                 </div>
-                <p className="timeline-company">{item.company}</p>
-                <p>{item.summary}</p>
+                <p className="experience-summary">{item.summary}</p>
+                <details className="experience-media">
+                  <summary>
+                    <span className="experience-label experience-label--open">Ver imagen</span>
+                    <span className="experience-label experience-label--close">Ocultar imagen</span>
+                    <span className="experience-toggle" aria-hidden="true" />
+                  </summary>
+                  <div className="experience-media-body">
+                    <div className="experience-media-inner">
+                      <img src={item.image} alt={item.imageAlt} loading="lazy" />
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
           ))}
@@ -657,7 +652,7 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         </div>
         <div className="testimonial-grid">
           {testimonials.map((item) => (
-            <article key={item.name} className="testimonial-card">
+            <article key={`${item.name}-${item.role}`} className="testimonial-card">
               <p className="testimonial-quote">"{item.quote}"</p>
               <div>
                 <p className="testimonial-name">{item.name}</p>
@@ -706,4 +701,3 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
 const Portfolio = React.memo(PortfolioComponent)
 
 export default Portfolio
-

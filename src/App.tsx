@@ -105,15 +105,15 @@ export default function App() {
   }, [])
 
   React.useEffect(() => {
-    const isBlocking = introStage !== 'done'
-    const isLoading = introStage === 'loading'
-    document.body.style.overflow = isBlocking ? 'hidden' : ''
-    document.body.classList.toggle('is-loading', isLoading)
+    document.body.style.overflow = ''
+    document.documentElement.style.overflow = ''
+    document.body.classList.remove('is-loading')
     return () => {
       document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
       document.body.classList.remove('is-loading')
     }
-  }, [introStage])
+  }, [])
 
   const isExiting = introStage !== 'loading'
   const isDone = introStage === 'done'

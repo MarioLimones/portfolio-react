@@ -1,22 +1,21 @@
 /* Scroll + navbar stabilization overrides */
 :root {
-  --nav-offset: 96px;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  --nav-offset: var(--topbar-offset, 96px);
 }
 
 html,
 body {
-  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  scroll-snap-type: none;
+  overflow-x: hidden;
   overflow-y: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
 }
 
 #root,
@@ -27,8 +26,22 @@ body {
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 2000 !important;
   backface-visibility: hidden;
+  pointer-events: auto;
+}
+
+.topbar *,
+.topbar a,
+.topbar button {
+  pointer-events: auto;
+}
+
+.global-ambient-bg,
+.ambient-canvas,
+.ambient-grid,
+.ambient-vignette {
+  pointer-events: none !important;
 }
 
 body.nav-stable .topbar--hidden {
@@ -42,6 +55,7 @@ body.content-ready .app-content {
   filter: none !important;
   will-change: auto;
 }
+
 
 section[id],
 .portfolio[id] {
