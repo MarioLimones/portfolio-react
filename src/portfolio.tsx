@@ -7,7 +7,7 @@ const cvUrl = new URL('./imgs/Cv-LimonesBernabe-Mario.pdf', import.meta.url).hre
 const profilePhotoUrl = new URL('./imgs/mariofoto.png', import.meta.url).href
 const expAlphaImg = new URL('./imgs/exp_alpha.svg', import.meta.url).href
 const expBetaImg = new URL('./imgs/exp_beta.svg', import.meta.url).href
-const expGammaImg = new URL('./imgs/exp_gamma.svg', import.meta.url).href
+const expGammaImg = new URL('./imgs/airbusCompañeros.jpeg', import.meta.url).href
 
 const navLinks = [
   { label: 'Inicio', href: '#inicio' },
@@ -137,29 +137,29 @@ const testimonials = [
 
 const experience = [
   {
-    role: 'Lead Backend Engineer',
-    company: 'Empresa Alpha',
-    time: '2023 - Actual',
+    role: 'Desarrollador de Software',
+    company: 'Core Networks',
+    time: '2024 - Actualidad',
     summary:
-      'Rediseno del core y migracion a arquitectura orientada a eventos con foco en resiliencia.',
+      'Desarrollo de aplicaciones backend con tecnologías modernas y arquitectura escalable.',
     image: expAlphaImg,
     imageAlt: 'Dashboard de arquitectura y rendimiento para Empresa Alpha',
   },
   {
-    role: 'Senior Software Engineer',
-    company: 'Empresa Beta',
-    time: '2020 - 2023',
+    role: 'Lab Sevilla ',
+    company: 'Desarrollador Frontend con WordPress',
+    time: '2025 - 2025',
     summary:
-      'Escalado de plataforma global, automatizacion de despliegues y mejora de observabilidad.',
+      'Desarrollo de temas y plugins para WordPress en entornos de producción.',
     image: expBetaImg,
     imageAlt: 'Panel de despliegues y observabilidad para Empresa Beta',
   },
   {
-    role: 'Backend Developer',
-    company: 'Empresa Gamma',
-    time: '2018 - 2020',
+    role: 'Montador de aviones',
+    company: 'Airbus',
+    time: '2022- 2024',
     summary:
-      'Diseno de APIs, integraciones con proveedores y optimizacion de consultas criticas.',
+      'Montaje de aviones comerciales y mantenimiento de componentes críticos.',
     image: expGammaImg,
     imageAlt: 'Vista de API y rendimiento para Empresa Gamma',
   },
@@ -283,6 +283,8 @@ const Topbar = React.memo(TopbarComponent)
 
 function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
   const heroRef = React.useRef<HTMLElement | null>(null)
+  const [lightboxImage, setLightboxImage] = React.useState<string | null>(null)
+  const [lightboxAlt, setLightboxAlt] = React.useState('')
 
   React.useEffect(() => {
     if (!ready) {
@@ -400,8 +402,44 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
     }
   }, [])
 
+  const closeLightbox = React.useCallback(() => {
+    setLightboxImage(null)
+    setLightboxAlt('')
+  }, [])
+
+  React.useEffect(() => {
+    if (!lightboxImage) {
+      return
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeLightbox()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [lightboxImage, closeLightbox])
+
   return (
     <div className="portfolio" id="inicio">
+      {lightboxImage ? (
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+          <button className="lightbox-backdrop" type="button" onClick={closeLightbox} aria-label="Cerrar" />
+          <div className="lightbox-content">
+            <button className="lightbox-close" type="button" onClick={closeLightbox} aria-label="Cerrar">
+              ✕
+            </button>
+            <img src={lightboxImage} alt={lightboxAlt} />
+          </div>
+        </div>
+      ) : null}
       <section
         ref={heroRef}
         className={`intro-landing hero-landing reveal is-interactive ${ready ? 'is-ready' : ''}`}
@@ -614,7 +652,20 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
                   </summary>
                   <div className="experience-media-body">
                     <div className="experience-media-inner">
-                      <img src={item.image} alt={item.imageAlt} loading="lazy" />
+                      <button
+                        className="experience-media-button"
+                        type="button"
+                        onClick={() => {
+                          setLightboxImage(item.image)
+                          setLightboxAlt(item.imageAlt)
+                        }}
+                        aria-label="Abrir imagen ampliada"
+                      >
+                        <img src={item.image} alt={item.imageAlt} loading="lazy" />
+                        <span className="experience-media-zoom" aria-hidden="true">
+                          Ver grande
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </details>
