@@ -165,16 +165,12 @@ const experience = [
   },
 ]
 
+type ExperienceItem = (typeof experience)[number]
+
 const awards = [
   { title: 'Top 3 en Hackathon Fintech', year: '2025' },
   { title: 'Speaker en conferencia de Arquitectura', year: '2024' },
   { title: 'Mencion en revista de tecnologia', year: '2023' },
-]
-
-const socials = [
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/tuusuario' },
-  { label: 'GitHub', href: 'https://github.com/tuusuario' },
-  { label: 'Twitter', href: 'https://twitter.com/tuusuario' },
 ]
 
 type Theme = 'dark' | 'light'
@@ -281,10 +277,167 @@ function TopbarComponent({ theme, onToggleTheme }: TopbarProps) {
 
 const Topbar = React.memo(TopbarComponent)
 
+const contactChannels = [
+  {
+    id: 'calendly',
+    label: 'Agenda',
+    title: 'Reserva una llamada',
+    description:
+      'Elige el hueco que mejor te encaje y hablemos en 20 minutos sobre tu proyecto.',
+    cta: 'Reservar en Calendly',
+    href: 'https://calendly.com/tuusuario',
+    detailTitle: 'Qué obtienes',
+    details: [
+      'Reunión de 20 minutos',
+      'Resumen con próximos pasos',
+      'Propuesta técnica si aplica',
+    ],
+  },
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    title: 'Conectemos en LinkedIn',
+    description:
+      'Comparte el contexto inicial por mensaje y te respondo con enfoque claro y directo.',
+    cta: 'Enviar mensaje',
+    href: 'https://linkedin.com/in/tuusuario',
+    detailTitle: 'Ideal para',
+    details: [
+      'Presentaciones profesionales',
+      'Networking técnico',
+      'Colaboraciones a medio plazo',
+    ],
+  },
+  {
+    id: 'discord',
+    label: 'Discord',
+    title: 'Sala privada en Discord',
+    description:
+      'Creamos un canal privado para mantener la conversación y el seguimiento del proyecto.',
+    cta: 'Entrar al servidor',
+    href: 'https://discord.gg/tuinvitation',
+    detailTitle: 'Incluye',
+    details: [
+      'Canal 1:1 privado',
+      'Actualizaciones rápidas',
+      'Espacio para archivos y enlaces',
+    ],
+  },
+]
+
+function ContactHub() {
+  const [activeChannelId, setActiveChannelId] = React.useState(contactChannels[0].id)
+
+  const activeChannel = contactChannels.find((channel) => channel.id === activeChannelId) ?? contactChannels[0]
+
+  return (
+    <section className="contact-section reveal" id="contacto">
+      <div className="contact-shell contact-shell--hero">
+        <div className="contact-atmosphere" aria-hidden="true">
+          <span className="contact-orb contact-orb--one" />
+          <span className="contact-orb contact-orb--two" />
+          <span className="contact-orb contact-orb--three" />
+        </div>
+
+        <div className="contact-intro">
+          <div className="contact-hero">
+            <div className="contact-eyebrow">Contacto inteligente</div>
+            <h2>Un panel moderno para iniciar conversación.</h2>
+            <p className="contact-lead">
+              Selecciona la vía que prefieras y accede a un flujo diseñado para responder rápido y con claridad.
+            </p>
+          </div>
+
+          <div className="contact-tabs" role="tablist" aria-label="Canales de contacto">
+            {contactChannels.map((channel) => (
+              <button
+                key={channel.id}
+                type="button"
+                role="tab"
+                aria-selected={activeChannelId === channel.id}
+                aria-controls={`contact-panel-${channel.id}`}
+                id={`contact-tab-${channel.id}`}
+                className={`contact-tab ${activeChannelId === channel.id ? 'is-active' : ''}`}
+                onClick={() => setActiveChannelId(channel.id)}
+              >
+                <span className="contact-tab-label">{channel.label}</span>
+                <span className="contact-tab-indicator" />
+              </button>
+            ))}
+          </div>
+
+          <div className="contact-strip">
+            {contactChannels.map((channel) => (
+              <article
+                key={channel.id}
+                className={`contact-chip ${activeChannelId === channel.id ? 'is-active' : ''}`}
+              >
+                <h3>{channel.title}</h3>
+                <p>{channel.description}</p>
+                <button
+                  type="button"
+                  className="contact-chip-action"
+                  onClick={() => setActiveChannelId(channel.id)}
+                  aria-label={`Ver detalles de ${channel.label}`}
+                >
+                  Ver detalles
+                </button>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div
+          className="contact-panel"
+          id={`contact-panel-${activeChannel.id}`}
+          role="tabpanel"
+          aria-labelledby={`contact-tab-${activeChannel.id}`}
+        >
+          <div className="contact-panel-card">
+            <div>
+              <p className="contact-label">Canal activo</p>
+              <h3>{activeChannel.title}</h3>
+              <p>{activeChannel.description}</p>
+            </div>
+            <a className="btn primary contact-panel-cta" href={activeChannel.href} target="_blank" rel="noreferrer">
+              {activeChannel.cta}
+            </a>
+          </div>
+
+          <div className="contact-panel-details">
+            <p className="contact-label">{activeChannel.detailTitle}</p>
+            <ul className="contact-list">
+              {activeChannel.details.map((detail) => (
+                <li key={detail}>{detail}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="contact-panel-footer">
+            <div>
+              <p className="contact-label">Disponibilidad</p>
+              <p className="contact-value">Lun - Vie · 09:00 - 19:00</p>
+            </div>
+            <div>
+              <p className="contact-label">Tiempo de respuesta</p>
+              <p className="contact-value">Menos de 48 horas</p>
+            </div>
+          </div>
+
+          <div className="contact-footnote">
+            <span className="contact-footnote-dot" />
+            ¿Necesitas otra vía? Escríbeme por LinkedIn y lo coordinamos.
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
   const heroRef = React.useRef<HTMLElement | null>(null)
-  const [lightboxImage, setLightboxImage] = React.useState<string | null>(null)
-  const [lightboxAlt, setLightboxAlt] = React.useState('')
+  const [zoomedExperience, setZoomedExperience] = React.useState<string | null>(null)
+  const [zoomOrigin, setZoomOrigin] = React.useState({ x: 50, y: 50 })
 
   React.useEffect(() => {
     if (!ready) {
@@ -402,44 +555,48 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
     }
   }, [])
 
-  const closeLightbox = React.useCallback(() => {
-    setLightboxImage(null)
-    setLightboxAlt('')
+  const closeZoomedExperience = React.useCallback(() => {
+    setZoomedExperience(null)
   }, [])
 
+  const handleExperienceToggle = React.useCallback((event: React.SyntheticEvent<HTMLDetailsElement>) => {
+    const details = event.currentTarget
+    if (!details.open) {
+      setZoomedExperience((current) => (current === details.dataset.experienceId ? null : current))
+    }
+  }, [])
+
+  const handleExperienceZoom = React.useCallback(
+    (item: ExperienceItem, event: React.MouseEvent<HTMLButtonElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect()
+      const hasPointer = event.clientX !== 0 || event.clientY !== 0
+      const clientX = hasPointer ? event.clientX : rect.left + rect.width / 2
+      const clientY = hasPointer ? event.clientY : rect.top + rect.height / 2
+      const nextX = rect.width ? Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) : 0.5
+      const nextY = rect.height ? Math.min(1, Math.max(0, (clientY - rect.top) / rect.height)) : 0.5
+      setZoomOrigin({ x: nextX * 100, y: nextY * 100 })
+      setZoomedExperience((current) => (current === item.role ? null : item.role))
+    },
+    []
+  )
+
   React.useEffect(() => {
-    if (!lightboxImage) {
+    if (!zoomedExperience) {
       return
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        closeLightbox()
+        closeZoomedExperience()
       }
     }
 
     document.addEventListener('keydown', onKeyDown)
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = ''
-    }
-  }, [lightboxImage, closeLightbox])
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [zoomedExperience, closeZoomedExperience])
 
   return (
     <div className="portfolio" id="inicio">
-      {lightboxImage ? (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
-          <button className="lightbox-backdrop" type="button" onClick={closeLightbox} aria-label="Cerrar" />
-          <div className="lightbox-content">
-            <button className="lightbox-close" type="button" onClick={closeLightbox} aria-label="Cerrar">
-              ✕
-            </button>
-            <img src={lightboxImage} alt={lightboxAlt} />
-          </div>
-        </div>
-      ) : null}
       <section
         ref={heroRef}
         className={`intro-landing hero-landing reveal is-interactive ${ready ? 'is-ready' : ''}`}
@@ -632,8 +789,12 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
           <p className="section-note">Incluye tu experiencia mas relevante y medible.</p>
         </div>
         <div className="timeline">
-          {experience.map((item) => (
-            <div key={item.role} className="timeline-item">
+          {experience.map((item) => {
+            const experienceId = `${item.role}-${item.company}`
+            const isZoomed = zoomedExperience === item.role
+
+            return (
+              <div key={experienceId} className={`timeline-item ${isZoomed ? 'is-zoomed' : ''}`.trim()}>
               <div className="timeline-dot" />
               <div className="timeline-content">
                 <div className="experience-header">
@@ -644,26 +805,37 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
                   <span className="experience-time">{item.time}</span>
                 </div>
                 <p className="experience-summary">{item.summary}</p>
-                <details className="experience-media">
+                <details
+                  className={`experience-media ${isZoomed ? 'is-zoomed' : ''}`.trim()}
+                  data-experience-id={item.role}
+                  onToggle={handleExperienceToggle}
+                >
                   <summary>
                     <span className="experience-label experience-label--open">Ver imagen</span>
                     <span className="experience-label experience-label--close">Ocultar imagen</span>
                     <span className="experience-toggle" aria-hidden="true" />
                   </summary>
                   <div className="experience-media-body">
-                    <div className="experience-media-inner">
+                    <div className={`experience-media-inner ${isZoomed ? 'is-zoomed' : ''}`.trim()}>
                       <button
-                        className="experience-media-button"
+                        className={`experience-media-button ${isZoomed ? 'is-zoomed' : ''}`.trim()}
                         type="button"
-                        onClick={() => {
-                          setLightboxImage(item.image)
-                          setLightboxAlt(item.imageAlt)
-                        }}
-                        aria-label="Abrir imagen ampliada"
+                        onClick={(event) => handleExperienceZoom(item, event)}
+                        aria-label={isZoomed ? 'Cerrar imagen ampliada' : 'Abrir imagen ampliada'}
+                        aria-pressed={isZoomed}
+                        style={
+                          {
+                            '--zoom-origin-x': `${zoomOrigin.x}%`,
+                            '--zoom-origin-y': `${zoomOrigin.y}%`,
+                          } as React.CSSProperties
+                        }
                       >
                         <img src={item.image} alt={item.imageAlt} loading="lazy" />
-                        <span className="experience-media-zoom" aria-hidden="true">
+                        <span className="experience-media-zoom experience-media-zoom--open" aria-hidden="true">
                           Ver grande
+                        </span>
+                        <span className="experience-media-zoom experience-media-zoom--close" aria-hidden="true">
+                          Cerrar
                         </span>
                       </button>
                     </div>
@@ -671,7 +843,8 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
                 </details>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
@@ -714,32 +887,7 @@ function PortfolioComponent({ ready, theme, onToggleTheme }: PortfolioProps) {
         </div>
       </section>
 
-      <section className="cta-section reveal" id="contacto">
-        <div className="cta-card">
-          <div>
-            <p className="section-kicker">Contacto</p>
-            <h2>Listo para tu proximo gran proyecto.</h2>
-            <p className="section-note">
-              Comparte tu idea, objetivo o desafio. Respondo en menos de 48 horas.
-            </p>
-          </div>
-          <div className="cta-actions">
-            <a className="btn primary" href="mailto:hola@tudominio.com">
-              Escribeme
-            </a>
-            <a className="btn ghost" href={cvUrl} target="_blank" rel="noreferrer">
-              Descargar CV
-            </a>
-          </div>
-          <div className="social-row">
-            {socials.map((social) => (
-              <a key={social.label} href={social.href} target="_blank" rel="noreferrer">
-                {social.label}
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ContactHub />
 
       <footer className="footer reveal">
         <p>(c) 2026 Nombre Apellido. Todos los derechos reservados.</p>
