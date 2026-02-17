@@ -136,8 +136,8 @@ function AmbientBackgroundComponent({ theme }: AmbientBackgroundProps) {
     let stars: Star[] = []
     let drifters: ColorDrifter[] = []
     const drifterPalette =
-      theme === 'light' ? ['#4f74ff', '#2cc9a2', '#ff8a6b'] : ['#4f8cff', '#59f0c9', '#ff6f6f']
-    const starColor = theme === 'light' ? '#4a5770' : '#dbe7ff'
+      theme === 'light' ? ['#1aa997', '#3b6aff', '#ff9b3f'] : ['#2dd7b7', '#4c7dff', '#ffb357']
+    const starColor = theme === 'light' ? '#5a667f' : '#d8e5ff'
     let rafId = 0
     let resizeRaf = 0
     let lastFrameTime = performance.now()

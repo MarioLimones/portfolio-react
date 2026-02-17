@@ -1,7 +1,6 @@
 import React from 'react'
 import AmbientBackground from './AmbientBackground'
 import Portfolio from './portfolio.tsx'
-import './App.css'
 
 const LOADER_DURATION = 2200
 const LOADER_EXIT_DURATION = 900
@@ -120,21 +119,28 @@ export default function App() {
   const progressScale = progress / 100
 
   return (
-    <div className="app-shell">
+    <div className="relative z-1 isolate">
       <AmbientBackground theme={theme} />
       <div
         className={`intro-loader ${isExiting ? 'is-exiting' : ''} ${isDone ? 'is-gone' : ''}`}
         aria-hidden={isExiting}
       >
-        <div className="intro-scene" aria-live="polite">
-          <p className="intro-name">{loaderName}</p>
-          <div className="intro-progress">
-            <div className="intro-progress-bar" style={{ transform: `scaleX(${progressScale})` }} />
+        <div className="flex w-full max-w-[680px] flex-col items-center gap-4 relative z-1" aria-live="polite">
+          <p className="bg-gradient-to-r from-white via-[#9fd1ff] to-[var(--color-accent)] bg-clip-text font-heading text-[clamp(2.2rem,7vw,4.8rem)] font-bold tracking-wider text-transparent">
+            {loaderName}
+          </p>
+          <div className="h-2 w-full max-w-[520px] overflow-hidden rounded-full bg-[var(--color-surface-strong)] shadow-lg">
+            <div
+              className="h-full w-full origin-left bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)] will-change-transform"
+              style={{ transform: `scaleX(${progressScale})` }}
+            />
           </div>
-          <span className="intro-percent">{progress}%</span>
+          <span className="text-sm font-semibold tracking-[0.2em] text-[var(--color-muted-strong)]">
+            {progress}%
+          </span>
         </div>
       </div>
-      <div className={`app-content ${isDone ? 'is-revealing' : ''}`}>
+      <div className={`app-content relative z-1 pointer-events-auto ${isDone ? 'is-revealing' : ''}`}>
         {shouldRenderPortfolio ? (
           <Portfolio ready={isDone} theme={theme} onToggleTheme={handleToggleTheme} />
         ) : null}

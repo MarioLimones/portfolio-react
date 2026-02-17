@@ -72,18 +72,8 @@ const techRows: TechRow[] = [
   {
     id: 'frontend',
     items: toItems([
-      'HTML',
-      'CSS',
-      'JavaScript',
-      'React',
-      'Vue',
-      'Figma',
-      'TypeScript',
-      'Docker',
-      'Swagger',
-      'Git',
-      'Postman',
-      'MySQL',
+      'HTML', 'CSS', 'JavaScript', 'React', 'Vue', 'Figma',
+      'TypeScript', 'Docker', 'Swagger', 'Git', 'Postman', 'MySQL',
     ]),
     direction: 'left',
     speed: 34,
@@ -95,9 +85,7 @@ function TechMarqueeComponent() {
 
   React.useEffect(() => {
     const container = containerRef.current
-    if (!container) {
-      return
-    }
+    if (!container) return
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const rows = Array.from(container.querySelectorAll<HTMLDivElement>('.tech-marquee-row'))
@@ -105,14 +93,10 @@ function TechMarqueeComponent() {
 
     rows.forEach((row) => {
       const track = row.querySelector<HTMLDivElement>('.tech-marquee-track')
-      if (!track) {
-        return
-      }
+      if (!track) return
 
       const baseItems = Array.from(track.querySelectorAll<HTMLElement>('[data-marquee-base="true"]'))
-      if (baseItems.length === 0) {
-        return
-      }
+      if (baseItems.length === 0) return
 
       const rebuild = () => {
         Array.from(track.children).forEach((child) => {
@@ -133,9 +117,7 @@ function TechMarqueeComponent() {
 
         const baseWidth = itemsWidth + gap * gapCount
 
-        if (baseWidth === 0) {
-          return
-        }
+        if (baseWidth === 0) return
 
         const containerWidth = row.offsetWidth
         const minTrackWidth = Math.max(baseWidth * 2, containerWidth * 2)
@@ -166,7 +148,7 @@ function TechMarqueeComponent() {
       resizeObserver.observe(row)
 
       if (document.fonts?.ready) {
-        document.fonts.ready.then(rebuild).catch(() => {})
+        document.fonts.ready.then(rebuild).catch(() => { })
       }
 
       cleanups.push(() => resizeObserver.disconnect())
@@ -176,27 +158,31 @@ function TechMarqueeComponent() {
   }, [])
 
   return (
-    <section className="tech-marquee-section" aria-label="Tecnologias destacadas">
-      <div className="tech-marquee" ref={containerRef}>
+    <div className="overflow-hidden w-full" ref={containerRef}>
+      <div className="flex flex-col gap-4 py-4">
         {techRows.map((row) => (
           <div
             key={row.id}
-            className={`tech-marquee-row tech-marquee-row--${row.direction}`}
+            className={`tech-marquee-row tech-marquee-row--${row.direction} overflow-hidden flex relative`}
             data-direction={row.direction}
             data-speed={row.speed}
           >
-            <div className="tech-marquee-track" aria-hidden="true">
+            <div className="tech-marquee-track flex gap-4" aria-hidden="true">
               {row.items.map(({ name, Icon }) => (
-                <span key={`${row.id}-${name}`} className="tech-chip" data-marquee-base="true">
-                  <Icon className="tech-chip-icon" aria-hidden="true" />
-                  <span className="tech-chip-label">{name}</span>
+                <span
+                  key={`${row.id}-${name}`}
+                  data-marquee-base="true"
+                  className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-surface)]/60 px-4 py-2 text-sm font-medium text-[var(--color-muted-strong)] backdrop-blur-sm transition-all duration-200 hover:border-[var(--color-accent)]/30 hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-strong)]/80 shrink-0"
+                >
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>{name}</span>
                 </span>
               ))}
             </div>
           </div>
         ))}
       </div>
-    </section>
+    </div>
   )
 }
 
