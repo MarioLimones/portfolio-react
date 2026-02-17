@@ -1,303 +1,277 @@
 import React from 'react'
 
-type Star = {
-  x: number
-  y: number
-  size: number
-  speedX: number
-  speedY: number
-  alpha: number
-  twinkleSpeed: number
-  twinkleOffset: number
-}
+type Theme = 'dark' | 'light'
+type AmbientBackgroundProps = { theme: Theme }
 
-type ColorDrifter = {
-  color: string
-  radius: number
-  opacityMin: number
-  opacityMax: number
+/* ─── Types ─── */
+type AuroraBlob = {
   x: number
   y: number
   vx: number
   vy: number
-  driftAngle: number
-  driftSpeed: number
-  driftTurnRate: number
-  flowPhaseX: number
-  flowPhaseY: number
-  flowFreqX: number
-  flowFreqY: number
-  pulseOffset: number
+  radius: number
+  r: number
+  g: number
+  b: number
+  baseAlpha: number
+  phaseX: number
+  phaseY: number
+  freqX: number
+  freqY: number
+  pulsePhase: number
   pulseSpeed: number
 }
 
-type Theme = 'dark' | 'light'
-
-type AmbientBackgroundProps = {
-  theme: Theme
+type Particle = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  size: number
+  alpha: number
+  twinkleSpeed: number
+  twinklePhase: number
 }
 
-const MIN_STARS = 22
-const MAX_STARS = 68
-const MAX_DPR = 1.75
-const DRIFTER_EDGE_MARGIN = 120
-const MIN_DRIFTER_SPEED = 26
-const MAX_DRIFTER_SPEED = 58
-const FLOW_ACCEL = 28
-const VELOCITY_BLEND = 3.4
+/* ─── Constants ─── */
+const MAX_DPR = 1.25       // lower DPR = much less pixels to push
+const MIN_PARTICLES = 25
+const MAX_PARTICLES = 55   // reduced from 120
+const BLOB_COUNT = 5       // reduced from 6
 
-const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
 
-const getStarCount = (width: number, height: number) => {
-  const count = Math.round((width * height) / 26000)
-  return clamp(count, MIN_STARS, MAX_STARS)
-}
+/* ─── Color palettes (pre-parsed RGB to avoid string ops in hot loop) ─── */
+const DARK_BLOBS: [number, number, number, number][] = [
+  [139, 92, 246, 0.22],   // violet
+  [6, 182, 212, 0.18],    // cyan
+  [236, 72, 153, 0.16],   // magenta
+  [99, 102, 241, 0.20],   // indigo
+  [34, 211, 238, 0.17],   // bright cyan
+]
 
-const createStars = (width: number, height: number): Star[] => {
-  const count = getStarCount(width, height)
-  const stars: Star[] = []
+const LIGHT_BLOBS: [number, number, number, number][] = [
+  [124, 58, 237, 0.11],
+  [6, 182, 212, 0.09],
+  [219, 39, 119, 0.08],
+  [79, 70, 229, 0.10],
+  [14, 165, 233, 0.08],
+]
 
-  for (let index = 0; index < count; index += 1) {
-    stars.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: 0.6 + Math.random() * 1.4,
-      speedX: (Math.random() - 0.5) * 8,
-      speedY: 2 + Math.random() * 8,
-      alpha: 0.22 + Math.random() * 0.42,
-      twinkleSpeed: 0.5 + Math.random() * 1.5,
-      twinkleOffset: Math.random() * Math.PI * 2,
+/* ─── Generators ─── */
+const createBlobs = (w: number, h: number, palette: [number, number, number, number][]): AuroraBlob[] => {
+  const blobs: AuroraBlob[] = []
+  for (let i = 0; i < BLOB_COUNT; i++) {
+    const angle = Math.random() * Math.PI * 2
+    const speed = 6 + Math.random() * 12
+    const [r, g, b, baseAlpha] = palette[i % palette.length]
+    blobs.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      radius: Math.max(w, h) * (0.25 + Math.random() * 0.20),
+      r, g, b, baseAlpha,
+      phaseX: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2,
+      freqX: 0.12 + Math.random() * 0.18,
+      freqY: 0.10 + Math.random() * 0.20,
+      pulsePhase: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.25 + Math.random() * 0.35,
     })
   }
-
-  return stars
+  return blobs
 }
 
-const getRandomAngle = () => Math.random() * Math.PI * 2
-const getRandomSpeed = () => MIN_DRIFTER_SPEED + Math.random() * (MAX_DRIFTER_SPEED - MIN_DRIFTER_SPEED)
-
-const createColorDrifters = (
-  width: number,
-  height: number,
-  colors: string[]
-): ColorDrifter[] => {
-  const drifterColors = colors
-  const centerY = height * 0.5
-  const horizontalStep = width / (drifterColors.length + 1)
-
-  return drifterColors.map((color, index) => {
-    const baseX = horizontalStep * (index + 1)
-    const baseY = centerY + (Math.random() - 0.5) * height * 0.24
-    const driftAngle = getRandomAngle()
-    const driftSpeed = getRandomSpeed()
-    const vx = Math.cos(driftAngle) * driftSpeed
-    const vy = Math.sin(driftAngle) * driftSpeed
-
-    return {
-      color,
-      radius: 6 + Math.random() * 2.4,
-      opacityMin: 0.44 + Math.random() * 0.1,
-      opacityMax: 0.78 + Math.random() * 0.12,
-      x: baseX + (Math.random() - 0.5) * 90,
-      y: baseY,
-      vx,
-      vy,
-      driftAngle,
-      driftSpeed,
-      driftTurnRate: (Math.random() - 0.5) * 0.36,
-      flowPhaseX: Math.random() * Math.PI * 2,
-      flowPhaseY: Math.random() * Math.PI * 2,
-      flowFreqX: 0.32 + Math.random() * 0.34,
-      flowFreqY: 0.28 + Math.random() * 0.38,
-      pulseOffset: Math.random() * Math.PI * 2,
-      pulseSpeed: 0.95 + Math.random() * 0.7,
-    }
-  })
+const createParticles = (w: number, h: number, isDark: boolean): Particle[] => {
+  const count = clamp(Math.round((w * h) / 22000), MIN_PARTICLES, MAX_PARTICLES)
+  const particles: Particle[] = []
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10,
+      size: 0.8 + Math.random() * 1.5,
+      alpha: isDark ? 0.25 + Math.random() * 0.4 : 0.12 + Math.random() * 0.25,
+      twinkleSpeed: 0.4 + Math.random() * 1.5,
+      twinklePhase: Math.random() * Math.PI * 2,
+    })
+  }
+  return particles
 }
 
+/* ─── Component ─── */
 function AmbientBackgroundComponent({ theme }: AmbientBackgroundProps) {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
 
   React.useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) {
-      return
-    }
+    if (!canvas) return
 
-    const context = canvas.getContext('2d', { alpha: true, desynchronized: true })
-    if (!context) {
-      return
-    }
+    const ctx = canvas.getContext('2d', { alpha: true })
+    if (!ctx) return
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let reducedMotion = mediaQuery.matches
-    let width = 0
-    let height = 0
-    let stars: Star[] = []
-    let drifters: ColorDrifter[] = []
-    const drifterPalette =
-      theme === 'light' ? ['#1aa997', '#3b6aff', '#ff9b3f'] : ['#2dd7b7', '#4c7dff', '#ffb357']
-    const starColor = theme === 'light' ? '#5a667f' : '#d8e5ff'
+    const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let reduced = mqReduced.matches
+    const isDark = theme === 'dark'
+
+    let w = 0
+    let h = 0
+    let dpr = 1
+    let blobs: AuroraBlob[] = []
+    let particles: Particle[] = []
     let rafId = 0
     let resizeRaf = 0
-    let lastFrameTime = performance.now()
+    let lastTime = performance.now()
 
-    const resize = () => {
-      const nextWidth = window.innerWidth
-      const nextHeight = window.innerHeight
-      const dpr = clamp(window.devicePixelRatio || 1, 1, MAX_DPR)
+    const palette = isDark ? DARK_BLOBS : LIGHT_BLOBS
 
-      if (nextWidth === width && nextHeight === height) {
-        return
-      }
+    /* ─ Pre-render each blob to an offscreen canvas (drawn once, reused every frame) ─ */
+    let blobCanvases: HTMLCanvasElement[] = []
 
-      width = nextWidth
-      height = nextHeight
-      canvas.width = Math.floor(width * dpr)
-      canvas.height = Math.floor(height * dpr)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
-      context.setTransform(dpr, 0, 0, dpr, 0, 0)
-
-      stars = createStars(width, height)
-      drifters = createColorDrifters(width, height, drifterPalette)
-    }
-
-    const drawFrame = (time: number, deltaSeconds: number) => {
-      context.clearRect(0, 0, width, height)
-      const seconds = time * 0.001
-
-      for (let index = 0; index < drifters.length; index += 1) {
-        const drifter = drifters[index]
-        drifter.driftAngle += drifter.driftTurnRate * deltaSeconds
-        const driftVx = Math.cos(drifter.driftAngle) * drifter.driftSpeed
-        const driftVy = Math.sin(drifter.driftAngle) * drifter.driftSpeed
-        const flowX = Math.cos(seconds * drifter.flowFreqX + drifter.flowPhaseX) * FLOW_ACCEL
-        const flowY = Math.sin(seconds * drifter.flowFreqY + drifter.flowPhaseY) * FLOW_ACCEL
-        const targetVx = driftVx + flowX
-        const targetVy = driftVy + flowY
-
-        const blend = clamp(VELOCITY_BLEND * deltaSeconds, 0, 1)
-        drifter.vx += (targetVx - drifter.vx) * blend
-        drifter.vy += (targetVy - drifter.vy) * blend
-
-        const speed = Math.hypot(drifter.vx, drifter.vy) || 0.0001
-        if (speed > MAX_DRIFTER_SPEED) {
-          const ratio = MAX_DRIFTER_SPEED / speed
-          drifter.vx *= ratio
-          drifter.vy *= ratio
-        } else if (speed < MIN_DRIFTER_SPEED) {
-          const ratio = MIN_DRIFTER_SPEED / speed
-          drifter.vx *= ratio
-          drifter.vy *= ratio
+    const buildBlobCanvases = () => {
+      blobCanvases = blobs.map((b) => {
+        const size = Math.ceil(b.radius * 2 * dpr)
+        const offscreen = document.createElement('canvas')
+        offscreen.width = size
+        offscreen.height = size
+        const octx = offscreen.getContext('2d')
+        if (octx) {
+          const cx = size / 2
+          const cy = size / 2
+          const r = size / 2
+          const grad = octx.createRadialGradient(cx, cy, 0, cx, cy, r)
+          grad.addColorStop(0, `rgba(${b.r},${b.g},${b.b},1)`)
+          grad.addColorStop(0.35, `rgba(${b.r},${b.g},${b.b},0.5)`)
+          grad.addColorStop(1, `rgba(${b.r},${b.g},${b.b},0)`)
+          octx.fillStyle = grad
+          octx.fillRect(0, 0, size, size)
         }
-
-        drifter.x += drifter.vx * deltaSeconds
-        drifter.y += drifter.vy * deltaSeconds
-
-        if (drifter.x < -DRIFTER_EDGE_MARGIN) drifter.x = width + DRIFTER_EDGE_MARGIN
-        if (drifter.x > width + DRIFTER_EDGE_MARGIN) drifter.x = -DRIFTER_EDGE_MARGIN
-        if (drifter.y < -DRIFTER_EDGE_MARGIN) drifter.y = height + DRIFTER_EDGE_MARGIN
-        if (drifter.y > height + DRIFTER_EDGE_MARGIN) drifter.y = -DRIFTER_EDGE_MARGIN
-
-        const pulseWave = 0.5 + Math.sin(seconds * drifter.pulseSpeed + drifter.pulseOffset) * 0.5
-        const alpha = drifter.opacityMin + (drifter.opacityMax - drifter.opacityMin) * pulseWave
-
-        context.globalAlpha = alpha
-        context.fillStyle = drifter.color
-        context.beginPath()
-        context.arc(drifter.x, drifter.y, drifter.radius, 0, Math.PI * 2)
-        context.fill()
-      }
-
-      context.fillStyle = starColor
-      for (let index = 0; index < stars.length; index += 1) {
-        const star = stars[index]
-
-        star.x += star.speedX * deltaSeconds
-        star.y += star.speedY * deltaSeconds
-
-        if (star.x > width + 2) star.x = -2
-        if (star.x < -2) star.x = width + 2
-        if (star.y > height + 2) star.y = -2
-
-        const twinkle = 0.72 + Math.sin(time * 0.0014 * star.twinkleSpeed + star.twinkleOffset) * 0.28
-        context.globalAlpha = star.alpha * twinkle
-        context.fillRect(star.x, star.y, star.size, star.size)
-      }
-
-      context.globalAlpha = 1
-    }
-
-    const render = (time: number) => {
-      const deltaSeconds = clamp((time - lastFrameTime) / 1000, 0, 0.05)
-      lastFrameTime = time
-      drawFrame(time, deltaSeconds)
-      rafId = window.requestAnimationFrame(render)
-    }
-
-    const renderStatic = () => {
-      drawFrame(0, 0)
-    }
-
-    const startLoop = () => {
-      lastFrameTime = performance.now()
-      rafId = window.requestAnimationFrame(render)
-    }
-
-    const stopLoop = () => {
-      if (rafId) {
-        window.cancelAnimationFrame(rafId)
-        rafId = 0
-      }
-    }
-
-    const handleResize = () => {
-      if (resizeRaf !== 0) {
-        return
-      }
-
-      resizeRaf = window.requestAnimationFrame(() => {
-        resizeRaf = 0
-        resize()
-        if (reducedMotion) {
-          renderStatic()
-        }
+        return offscreen
       })
     }
 
-    const handleMotionChange = (event: MediaQueryListEvent) => {
-      reducedMotion = event.matches
-      stopLoop()
-      if (reducedMotion) {
-        renderStatic()
-      } else {
-        startLoop()
+    const resize = () => {
+      const nw = window.innerWidth
+      const nh = window.innerHeight
+      dpr = clamp(window.devicePixelRatio || 1, 1, MAX_DPR)
+      if (nw === w && nh === h) return
+      w = nw
+      h = nh
+      canvas.width = Math.floor(w * dpr)
+      canvas.height = Math.floor(h * dpr)
+      canvas.style.width = `${w}px`
+      canvas.style.height = `${h}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      blobs = createBlobs(w, h, palette)
+      particles = createParticles(w, h, isDark)
+      buildBlobCanvases()
+    }
+
+    const particleColor = isDark ? 'rgba(210,215,240,' : 'rgba(40,50,80,'
+
+    const draw = (time: number, dt: number) => {
+      ctx.clearRect(0, 0, w, h)
+      const sec = time * 0.001
+
+      // ── Aurora blobs (pre-rendered, just drawImage with alpha) ──
+      for (let i = 0; i < blobs.length; i++) {
+        const b = blobs[i]
+
+        // Organic drift
+        b.x += (b.vx + Math.sin(sec * b.freqX + b.phaseX) * 12) * dt
+        b.y += (b.vy + Math.cos(sec * b.freqY + b.phaseY) * 12) * dt
+
+        // Wrap
+        const m = b.radius * 0.4
+        if (b.x < -m) b.x = w + m
+        if (b.x > w + m) b.x = -m
+        if (b.y < -m) b.y = h + m
+        if (b.y > h + m) b.y = -m
+
+        // Pulse
+        const pulse = 0.5 + Math.sin(sec * b.pulseSpeed + b.pulsePhase) * 0.5
+        ctx.globalAlpha = b.baseAlpha * (0.7 + pulse * 0.3)
+
+        // Draw pre-rendered blob
+        const oc = blobCanvases[i]
+        if (oc) {
+          ctx.drawImage(oc, b.x - b.radius, b.y - b.radius, b.radius * 2, b.radius * 2)
+        }
       }
+
+      // ── Particles (simple rects, no arcs, no connections) ──
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+        p.x += p.vx * dt
+        p.y += p.vy * dt
+
+        if (p.x > w + 3) p.x = -3
+        if (p.x < -3) p.x = w + 3
+        if (p.y > h + 3) p.y = -3
+        if (p.y < -3) p.y = h + 3
+
+        const twinkle = 0.6 + Math.sin(time * 0.002 * p.twinkleSpeed + p.twinklePhase) * 0.4
+        ctx.globalAlpha = p.alpha * twinkle
+        ctx.fillStyle = particleColor + '1)'
+        ctx.fillRect(p.x, p.y, p.size, p.size)
+      }
+
+      ctx.globalAlpha = 1
+    }
+
+    const render = (time: number) => {
+      const dt = clamp((time - lastTime) / 1000, 0, 0.05)
+      lastTime = time
+      draw(time, dt)
+      rafId = window.requestAnimationFrame(render)
+    }
+
+    const renderStatic = () => draw(0, 0)
+
+    const start = () => {
+      lastTime = performance.now()
+      rafId = window.requestAnimationFrame(render)
+    }
+
+    const stop = () => {
+      if (rafId) { window.cancelAnimationFrame(rafId); rafId = 0 }
+    }
+
+    const onResize = () => {
+      if (resizeRaf) return
+      resizeRaf = window.requestAnimationFrame(() => {
+        resizeRaf = 0
+        resize()
+        if (reduced) renderStatic()
+      })
+    }
+
+    const onMotion = (e: MediaQueryListEvent) => {
+      reduced = e.matches
+      stop()
+      reduced ? renderStatic() : start()
     }
 
     resize()
-    if (reducedMotion) {
-      renderStatic()
-    } else {
-      startLoop()
-    }
+    reduced ? renderStatic() : start()
 
-    window.addEventListener('resize', handleResize, { passive: true })
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', handleMotionChange)
+    window.addEventListener('resize', onResize, { passive: true })
+    if (typeof mqReduced.addEventListener === 'function') {
+      mqReduced.addEventListener('change', onMotion)
     } else {
-      mediaQuery.addListener(handleMotionChange)
+      mqReduced.addListener(onMotion)
     }
 
     return () => {
-      stopLoop()
+      stop()
       window.cancelAnimationFrame(resizeRaf)
-      window.removeEventListener('resize', handleResize)
-      if (typeof mediaQuery.removeEventListener === 'function') {
-        mediaQuery.removeEventListener('change', handleMotionChange)
+      window.removeEventListener('resize', onResize)
+      if (typeof mqReduced.removeEventListener === 'function') {
+        mqReduced.removeEventListener('change', onMotion)
       } else {
-        mediaQuery.removeListener(handleMotionChange)
+        mqReduced.removeListener(onMotion)
       }
     }
   }, [theme])
@@ -312,5 +286,4 @@ function AmbientBackgroundComponent({ theme }: AmbientBackgroundProps) {
 }
 
 const AmbientBackground = React.memo(AmbientBackgroundComponent)
-
 export default AmbientBackground

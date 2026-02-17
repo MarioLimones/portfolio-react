@@ -22,13 +22,6 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
             className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-visible px-4 py-16"
             id="inicio"
         >
-            {/* Background orbs */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-                <span className="absolute left-[15%] top-[20%] h-64 w-64 rounded-full bg-[var(--color-accent)]/10 blur-[100px]" />
-                <span className="absolute right-[10%] top-[30%] h-56 w-56 rounded-full bg-[var(--color-accent-2)]/10 blur-[100px]" />
-                <span className="absolute bottom-[20%] left-[40%] h-48 w-48 rounded-full bg-[var(--color-accent-3)]/8 blur-[100px]" />
-            </div>
-
             <motion.div
                 className="relative z-10 flex max-w-4xl flex-col items-center gap-6 text-center"
                 variants={containerVariants}
@@ -46,9 +39,9 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
                 {/* Name */}
                 <motion.h1
                     variants={itemVariants}
-                    className="bg-gradient-to-r from-[var(--color-text-main)] via-[#b5deff] to-[var(--color-accent)] bg-clip-text font-heading text-5xl font-bold uppercase leading-tight tracking-wide text-transparent sm:text-6xl lg:text-7xl"
+                    className="bg-gradient-to-r from-[var(--color-text-main)] via-[#c4b5fd] to-[#22d3ee] bg-clip-text font-heading text-5xl font-bold uppercase leading-tight tracking-wide text-transparent sm:text-6xl lg:text-7xl"
                 >
-                    Mario <span className="block bg-gradient-to-r from-[#9dc9ff] to-[var(--color-accent)] bg-clip-text">Limones</span>
+                    Mario <span className="block bg-gradient-to-r from-[#a78bfa] via-[#f472b6] to-[#22d3ee] bg-clip-text">Limones</span>
                 </motion.h1>
 
                 {/* Role */}
@@ -61,7 +54,8 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
 
                 {/* Photo */}
                 <motion.div variants={itemVariants} className="flex justify-center">
-                    <div className="relative h-24 w-24 overflow-hidden rounded-full border border-[var(--color-accent)]/40 shadow-[0_0_26px_6px_rgba(39,245,208,0.18),0_0_58px_14px_rgba(39,245,208,0.14)]"
+                    <div
+                        className="relative h-24 w-24 overflow-hidden rounded-full border border-[var(--color-accent)]/40 shadow-[0_0_26px_6px_rgba(167,139,250,0.2),0_0_58px_14px_rgba(139,92,246,0.15)]"
                         style={{ animation: 'portrait-glow 5.2s ease-in-out infinite' }}
                     >
                         <img
@@ -88,7 +82,7 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
                     {heroBadges.map((badge) => (
                         <span
                             key={badge}
-                            className="rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-3.5 py-1.5 text-xs font-medium text-[var(--color-muted-strong)] transition-all duration-200 hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/30"
+                            className="rounded-full border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/8 px-3.5 py-1.5 text-xs font-medium text-[var(--color-muted-strong)] transition-all duration-200 hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/30 hover:shadow-[0_0_20px_rgba(167,139,250,0.15)]"
                         >
                             {badge}
                         </span>
@@ -109,7 +103,7 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
                             aria-label={label}
                             target={href.startsWith('http') ? '_blank' : undefined}
                             rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                            className="group relative grid h-11 w-11 place-items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-weak)] text-[var(--color-text-main)] transition-all duration-300 hover:-translate-y-1.5 hover:scale-105 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
+                            className="group relative grid h-11 w-11 place-items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-weak)] text-[var(--color-text-main)] transition-all duration-300 hover:-translate-y-1.5 hover:scale-105 hover:shadow-[0_8px_24px_rgba(139,92,246,0.2)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                         >
                             <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
                                 <path d={icon} />
@@ -125,7 +119,7 @@ function HeroLandingComponent({ ready }: { ready: boolean }) {
                 <motion.a
                     variants={itemVariants}
                     href="#proyectos"
-                    className="mt-2 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] px-8 py-3.5 text-base font-bold text-[#0b0e18] shadow-[0_18px_30px_rgba(39,245,208,0.2)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-text-main)]"
+                    className="mt-2 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#8b5cf6] via-[#a855f7] to-[#06b6d4] px-8 py-3.5 text-base font-bold text-white shadow-[0_14px_36px_rgba(139,92,246,0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:shadow-[0_20px_48px_rgba(139,92,246,0.4)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-text-main)]"
                 >
                     <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20">
                         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
